@@ -1,30 +1,68 @@
 targets:
   $default:
     builders:
+      # Riverpod code generation
       riverpod_generator:
-        generate_for:
-          - lib/features/**/*.dart
-          - lib/core/services/**/*.dart
         options:
-          riverpod_generator:
-            # Options for riverpod_generator
-            generate_providers: true
-            generate_annotations: true
+          # Generate providers for better performance
+          generate_providers: true
+          # Generate providers for better debugging
+          generate_debug_providers: true
+          
+      # JSON serialization
       json_serializable:
-        generate_for:
-          - lib/models/**/*.dart
         options:
-          json_serializable:
-            # Options for json_serializable
-            explicit_to_json: true
-            include_if_null: false
+          # Generate toJson and fromJson methods
+          explicit_to_json: true
+          # Generate generic methods
+          generic_argument_factories: true
+          # Include null safety
+          include_if_null: false
+          
+      # Freezed code generation
       freezed:
-        generate_for:
-          - lib/models/**/*.dart
         options:
-          freezed:
-            # Options for freezed
-            equal: true
-            toString: true
-            copyWith: true
-
+          # Generate copyWith methods
+          copy_with: true
+          # Generate equality methods
+          equal: true
+          # Generate toString methods
+          to_string: true
+          # Generate hash code
+          hash_code: true
+          
+      # Build runner
+      build_runner:
+        options:
+          # Delete conflicting outputs
+          delete_conflicting_outputs: true
+          # Generate files in parallel
+          generate_build_script: true
+          
+      # Flutter gen
+      flutter_gen_runner:
+        options:
+          # Generate assets
+          generate_assets: true
+          # Generate colors
+          generate_colors: true
+          # Generate fonts
+          generate_fonts: true
+          # Generate strings
+          generate_strings: true
+          
+      # Hive code generation
+      hive_generator:
+        options:
+          # Generate adapters
+          generate_adapters: true
+          # Generate type adapters
+          generate_type_adapters: true
+          
+      # Formz code generation
+      formz:
+        options:
+          # Generate form fields
+          generate_form_fields: true
+          # Generate validators
+          generate_validators: true
