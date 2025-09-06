@@ -1,0 +1,210 @@
+workflows:
+  special-one-student-app:
+    name: Special One Student App
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      vars:
+        # Supabase Configuration
+        SUPABASE_URL: "https://zrxgvzhikiyqyhxprmwc.supabase.co"
+        SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyeGd2emhpa2l5cXloeHBybXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNDc4NDQsImV4cCI6MjA3MjcyMzg0NH0.7j34n9nchrmxroqdXI6LZLzARiSeYiPQrAOuzZVmong"
+        
+        # App Configuration
+        APP_NAME: "أحمد سامي - سبشيال وان"
+        APP_VERSION: "1.0.0"
+        APP_BUILD_NUMBER: "1"
+        
+        # Firebase Configuration (for notifications)
+        FIREBASE_PROJECT_ID: "special-one-app"
+        FIREBASE_APP_ID_ANDROID: "1:123456789:android:abcdef123456"
+        FIREBASE_APP_ID_IOS: "1:123456789:ios:abcdef123456"
+        
+        # Build Configuration
+        BUILD_MODE: "release"
+        ANDROID_KEYSTORE: "encrypted(keystore_content)"
+        ANDROID_KEY_ALIAS: "upload"
+        ANDROID_KEYSTORE_PASSWORD: "encrypted(keystore_password)"
+        ANDROID_KEY_PASSWORD: "encrypted(key_password)"
+        
+        # iOS Configuration
+        IOS_CERTIFICATE: "encrypted(certificate_content)"
+        IOS_CERTIFICATE_PASSWORD: "encrypted(certificate_password)"
+        IOS_PROVISIONING_PROFILE: "encrypted(provisioning_profile_content)"
+        
+        # Distribution
+        PUBLISH_TO_GOOGLE_PLAY: "false"
+        PUBLISH_TO_APP_STORE: "false"
+        
+    scripts:
+      - name: Set up local.properties
+        script: |
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+          echo "sdk.dir=$ANDROID_SDK_ROOT" >> android/local.properties
+          
+      - name: Get Flutter packages
+        script: |
+          flutter packages get
+          
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+          
+      - name: Flutter test
+        script: |
+          flutter test
+          
+      - name: Build Android APK
+        script: |
+          flutter build apk --release \
+            --build-name=$APP_VERSION \
+            --build-number=$APP_BUILD_NUMBER \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            --dart-define=FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID
+            
+      - name: Build Android App Bundle
+        script: |
+          flutter build appbundle --release \
+            --build-name=$APP_VERSION \
+            --build-number=$APP_BUILD_NUMBER \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            --dart-define=FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID
+            
+      - name: Build iOS
+        script: |
+          flutter build ios --release \
+            --build-name=$APP_VERSION \
+            --build-number=$APP_BUILD_NUMBER \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            --dart-define=FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
+            --no-codesign
+            
+    artifacts:
+      - build/**/outputs/**/*.apk
+      - build/**/outputs/**/mapping.txt
+      - build/**/outputs/**/bundle/**/*.aab
+      - build/ios/ipa/*.ipa
+      - flutter_drive.log
+      - build/ios/Runner.app
+      - /tmp/xcodebuild_logs/*.log
+      - ios/Runner.xcarchive
+      
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: true
+          failure: true
+          
+      # Uncomment to publish to Google Play Store
+      # google_play:
+      #   credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+      #   track: internal
+      #   submit_as_draft: true
+      
+      # Uncomment to publish to App Store Connect
+      # app_store_connect:
+      #   api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+      #   key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+      #   issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+      #   submit_to_testflight: true
+      #   submit_to_app_store: false
+
+  # Development workflow for testing
+  special-one-student-app-dev:
+    name: Special One Student App - Development
+    max_build_duration: 30
+    environment:
+      flutter: stable
+      vars:
+        SUPABASE_URL: "https://zrxgvzhikiyqyhxprmwc.supabase.co"
+        SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyeGd2emhpa2l5cXloeHBybXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNDc4NDQsImV4cCI6MjA3MjcyMzg0NH0.7j34n9nchrmxroqdXI6LZLzARiSeYiPQrAOuzZVmong"
+        BUILD_MODE: "debug"
+        
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter packages get
+          
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+          
+      - name: Flutter test
+        script: |
+          flutter test
+          
+      - name: Build Android APK (Debug)
+        script: |
+          flutter build apk --debug \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+            
+    artifacts:
+      - build/**/outputs/**/*.apk
+      
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: true
+          failure: true
+
+  # Staging workflow for testing before production
+  special-one-student-app-staging:
+    name: Special One Student App - Staging
+    max_build_duration: 45
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      vars:
+        SUPABASE_URL: "https://zrxgvzhikiyqyhxprmwc.supabase.co"
+        SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyeGd2emhpa2l5cXloeHBybXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNDc4NDQsImV4cCI6MjA3MjcyMzg0NH0.7j34n9nchrmxroqdXI6LZLzARiSeYiPQrAOuzZVmong"
+        BUILD_MODE: "release"
+        
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter packages get
+          
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+          
+      - name: Flutter test
+        script: |
+          flutter test
+          
+      - name: Build Android APK (Staging)
+        script: |
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            --dart-define=BUILD_MODE=staging
+            
+      - name: Build iOS (Staging)
+        script: |
+          flutter build ios --release \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            --dart-define=BUILD_MODE=staging \
+            --no-codesign
+            
+    artifacts:
+      - build/**/outputs/**/*.apk
+      - build/ios/Runner.app
+      
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: true
+          failure: true
