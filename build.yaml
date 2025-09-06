@@ -1,0 +1,30 @@
+targets:
+  $default:
+    builders:
+      riverpod_generator:
+        generate_for:
+          - lib/features/**/*.dart
+          - lib/core/services/**/*.dart
+        options:
+          riverpod_generator:
+            # Options for riverpod_generator
+            generate_providers: true
+            generate_annotations: true
+      json_serializable:
+        generate_for:
+          - lib/models/**/*.dart
+        options:
+          json_serializable:
+            # Options for json_serializable
+            explicit_to_json: true
+            include_if_null: false
+      freezed:
+        generate_for:
+          - lib/models/**/*.dart
+        options:
+          freezed:
+            # Options for freezed
+            equal: true
+            toString: true
+            copyWith: true
+
